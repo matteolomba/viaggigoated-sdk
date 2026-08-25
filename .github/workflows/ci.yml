@@ -24,7 +24,8 @@ jobs:
       - name: openapi snapshot exists
         run: test -f contracts/openapi.yaml && test -f contracts/openapi.json && echo "snapshot ok" || (echo "manca contracts/openapi.yaml/.json" && exit 1)
       - name: schemathesis (DAST su staging, se BACKEND_URL)
-        if: ${{ secrets.BACKEND_URL != '' }}
         env:
           BACKEND_URL: ${{ secrets.BACKEND_URL }}
-        run: uv run schemathesis run $BACKEND_URL/openapi.json --checks all --hypothesis-max-examples=20 || echo "schemathesis skip — no staging"
+        run: |
+          if [ -z "$BACKEND_URL" ]; then echo "schemathesis skip — no staging"; exit 0; fi
+          uv run schemathesis run $BACKEND_URL/openapi.json --checks all --hypothesis-max-examples=20 || echo "schemathesis skip — no staging"
