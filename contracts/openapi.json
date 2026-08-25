@@ -1,0 +1,7163 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "viaggigoated-backend",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Health Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/anywhere": {
+      "get": {
+        "tags": [
+          "anywhere"
+        ],
+        "summary": "Anywhere",
+        "description": "Tutte le destinazioni con prezzo minimo, ordinate per prezzo.\n\nId posizione SOLO dal suggester `/omio/positions` (mai nomi liberi).\n`modes` filtra per mezzo di trasporto; `providers` filtra per operatore\n(es. `flixbus,itabus,italo`) sul viaggio pi\u00f9 economico di ogni\ndestinazione.",
+        "operationId": "anywhere_anywhere_get",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "From"
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "title": "Date"
+            }
+          },
+          {
+            "name": "modes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(train|flight|bus)(,(train|flight|bus))*$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Modes"
+            }
+          },
+          {
+            "name": "providers",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-z0-9]+(,[a-z0-9]+)*$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Providers"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 20,
+              "minimum": 1,
+              "default": 10,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnywhereResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/anywhere/stream": {
+      "get": {
+        "tags": [
+          "anywhere"
+        ],
+        "summary": "Anywhere Stream",
+        "description": "\"Ovunque\" in streaming: ogni destinazione arriva appena il provider\nrisponde (`event: destination`), poi il riepilogo (`event: done`). La GUI\nsi aggiorna man mano, senza aspettare la fine di tutte le ricerche.",
+        "operationId": "anywhere_stream_anywhere_stream_get",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "From"
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "title": "Date"
+            }
+          },
+          {
+            "name": "modes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(train|flight|bus)(,(train|flight|bus))*$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Modes"
+            }
+          },
+          {
+            "name": "providers",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-z0-9]+(,[a-z0-9]+)*$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Providers"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 20,
+              "minimum": 1,
+              "default": 10,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/flights/roundtrip": {
+      "get": {
+        "tags": [
+          "flights"
+        ],
+        "summary": "Roundtrip",
+        "operationId": "roundtrip_flights_roundtrip_get",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 3,
+              "pattern": "^[A-Z]{3}$",
+              "title": "From"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 3,
+              "pattern": "^[A-Z]{3}$",
+              "title": "To"
+            }
+          },
+          {
+            "name": "out",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Out"
+            }
+          },
+          {
+            "name": "back",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Back"
+            }
+          },
+          {
+            "name": "window",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Window"
+            }
+          },
+          {
+            "name": "nights",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 30,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Nights"
+            }
+          },
+          {
+            "name": "travelers",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 9,
+              "minimum": 1,
+              "default": 1,
+              "title": "Travelers"
+            }
+          },
+          {
+            "name": "budget_max_per_person_eur",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Budget Max Per Person Eur"
+            }
+          },
+          {
+            "name": "earliest_departure_hour",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 23,
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Earliest Departure Hour"
+            }
+          },
+          {
+            "name": "home",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 2,
+                  "maxLength": 80
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Home"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoundtripResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/flights/aggregated": {
+      "get": {
+        "tags": [
+          "flights"
+        ],
+        "summary": "Aggregated",
+        "operationId": "aggregated_flights_aggregated_get",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 3,
+              "pattern": "^[A-Z]{3}$",
+              "title": "From"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 3,
+              "pattern": "^[A-Z]{3}$",
+              "title": "To"
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "title": "Date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AggregatedResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/links": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Links",
+        "description": "Correlazioni esistenti, con filtri (q sul nome, provider, stato).",
+        "operationId": "links_admin_links_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "name": "provider",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Provider"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500,
+              "minimum": 1,
+              "default": 200,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StationLinkListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Create Link",
+        "description": "Aggiunta manuale di una correlazione (confermata subito).",
+        "operationId": "create_link_admin_links_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StationLinkCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StationLinkView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/links/{link_id}/status": {
+      "put": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Update Link Status",
+        "description": "Conferma o rifiuta una correlazione (anche una proposta).",
+        "operationId": "update_link_status_admin_links__link_id__status_put",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "link_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Link Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StationLinkStatusUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StationLinkView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/links/proposals/generate": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Generate",
+        "description": "Lancia il motore di proposta (idempotente): nascono solo `proposed`.",
+        "operationId": "generate_admin_links_proposals_generate_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalStatsView"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/admin/links/proposals": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Proposals",
+        "description": "Proposte pendenti, ordinate per confidenza (score).",
+        "operationId": "proposals_admin_links_proposals_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500,
+              "minimum": 1,
+              "default": 100,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "method",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Method"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/links/proposals/{link_id}/apply": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Apply Proposal",
+        "description": "Applica una proposta singola (la conferma).",
+        "operationId": "apply_proposal_admin_links_proposals__link_id__apply_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "link_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Link Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StationLinkView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/token": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Login",
+        "operationId": "login_auth_token_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Register",
+        "description": "Registrazione invite-only: consuma un codice e crea l'utente.",
+        "operationId": "register_auth_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/invites": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "List Invites",
+        "description": "Codici invito generati dall'admin corrente.",
+        "operationId": "list_invites_auth_invites_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InviteListResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Generate Invite",
+        "description": "Genera un codice invito (solo admin).",
+        "operationId": "generate_invite_auth_invites_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InviteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InviteResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/airports/nearby": {
+      "get": {
+        "tags": [
+          "airports"
+        ],
+        "summary": "Nearby",
+        "operationId": "nearby_airports_nearby_get",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 80,
+              "title": "From"
+            }
+          },
+          {
+            "name": "radius_km",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "default": 250,
+              "title": "Radius Km"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NearbyResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/alerts": {
+      "get": {
+        "tags": [
+          "alerts"
+        ],
+        "summary": "List Alerts",
+        "operationId": "list_alerts_alerts_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertListResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "alerts"
+        ],
+        "summary": "Create Alert",
+        "operationId": "create_alert_alerts_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAlertRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/alerts/{alert_id}": {
+      "delete": {
+        "tags": [
+          "alerts"
+        ],
+        "summary": "Delete Alert",
+        "operationId": "delete_alert_alerts__alert_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "alert_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Alert Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bus/cities": {
+      "get": {
+        "tags": [
+          "bus"
+        ],
+        "summary": "Cities",
+        "description": "Autocompletamento citt\u00e0 (selezione per la ricerca: id UUID stabili).",
+        "operationId": "cities_bus_cities_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 80,
+              "title": "Q"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10,
+              "minimum": 1,
+              "default": 5,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusCityListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bus/search": {
+      "get": {
+        "tags": [
+          "bus"
+        ],
+        "summary": "Search Bus",
+        "description": "Viaggi con prezzo per persona, ordinati per partenza.\n\nId citt\u00e0 SOLO dall'autocomplete `/bus/cities` (mai nomi liberi).",
+        "operationId": "search_bus_bus_search_get",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "title": "From"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "title": "To"
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "title": "Date"
+            }
+          },
+          {
+            "name": "adults",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 9,
+              "minimum": 1,
+              "default": 1,
+              "title": "Adults"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusSearchResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/destinations": {
+      "get": {
+        "tags": [
+          "destinations"
+        ],
+        "summary": "Destinations",
+        "operationId": "destinations_destinations_get",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 80,
+              "title": "From"
+            }
+          },
+          {
+            "name": "window",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 19,
+              "maxLength": 21,
+              "title": "Window"
+            }
+          },
+          {
+            "name": "nights",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "maximum": 30,
+              "minimum": 1,
+              "title": "Nights"
+            }
+          },
+          {
+            "name": "travelers",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 9,
+              "minimum": 1,
+              "default": 1,
+              "title": "Travelers"
+            }
+          },
+          {
+            "name": "country",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 2,
+                  "maxLength": 2,
+                  "pattern": "^[A-Za-z]{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Country"
+            }
+          },
+          {
+            "name": "budget_max_per_person_eur",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Budget Max Per Person Eur"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/viaggigoated__api__destinations__DestinationsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/diagnostics/metrics": {
+      "get": {
+        "tags": [
+          "diagnostics"
+        ],
+        "summary": "Metrics",
+        "operationId": "metrics_diagnostics_metrics_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MetricsView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/local-hop": {
+      "get": {
+        "tags": [
+          "local-hop"
+        ],
+        "summary": "Local Hop",
+        "operationId": "local_hop_local_hop_get",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 80,
+              "title": "From"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 80,
+              "title": "To"
+            }
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 10,
+              "title": "Mode"
+            }
+          },
+          {
+            "name": "travelers",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 9,
+              "minimum": 1,
+              "default": 1,
+              "title": "Travelers"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocalHopView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/local-hop/rates": {
+      "get": {
+        "tags": [
+          "local-hop"
+        ],
+        "summary": "List Rates",
+        "operationId": "list_rates_local_hop_rates_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RatesResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "local-hop"
+        ],
+        "summary": "Update Rate",
+        "operationId": "update_rate_local_hop_rates_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RateUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RateView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/locations": {
+      "get": {
+        "tags": [
+          "locations"
+        ],
+        "summary": "Locations",
+        "description": "Autocompletamento sul catalogo unificato (treni, bus, aerei).",
+        "operationId": "locations_locations_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 80,
+              "title": "Q"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(train_station|bus_station|bus_city|airport)$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Kind"
+            }
+          },
+          {
+            "name": "country",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 2,
+                  "maxLength": 2,
+                  "pattern": "^[A-Za-z]{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Country"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocationListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notifications/stream": {
+      "get": {
+        "tags": [
+          "notifications"
+        ],
+        "summary": "Stream",
+        "description": "Stream SSE: eventi `price_alert` per l'utente del token.",
+        "operationId": "stream_notifications_stream_get",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "title": "Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/itabus/stations": {
+      "get": {
+        "tags": [
+          "itabus"
+        ],
+        "summary": "Stations",
+        "operationId": "stations_itabus_stations_get",
+        "parameters": [
+          {
+            "name": "country",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 2,
+                  "maxLength": 2
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Country"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StationsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/itabus/stations/{station_code}/destinations": {
+      "get": {
+        "tags": [
+          "itabus"
+        ],
+        "summary": "Destinations",
+        "operationId": "destinations_itabus_stations__station_code__destinations_get",
+        "parameters": [
+          {
+            "name": "station_code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Station Code"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/viaggigoated__api__itabus__DestinationsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/omio/positions": {
+      "get": {
+        "tags": [
+          "omio"
+        ],
+        "summary": "Positions",
+        "description": "Autocompletamento posizioni (selezione per la ricerca: id stabili).",
+        "operationId": "positions_omio_positions_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 80,
+              "title": "Q"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10,
+              "minimum": 1,
+              "default": 5,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OmioPositionListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/omio/search": {
+      "get": {
+        "tags": [
+          "omio"
+        ],
+        "summary": "Search Omio",
+        "description": "Viaggi multi-modale con prezzo per persona, ordinati per partenza.\n\nId posizioni SOLO dal suggester `/omio/positions` (mai nomi liberi).",
+        "operationId": "search_omio_omio_search_get",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "From"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "To"
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "title": "Date"
+            }
+          },
+          {
+            "name": "modes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(train|flight|bus)(,(train|flight|bus))*$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Modes"
+            }
+          },
+          {
+            "name": "adults",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 9,
+              "minimum": 1,
+              "default": 1,
+              "title": "Adults"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OmioSearchResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/omio/roundtrip": {
+      "get": {
+        "tags": [
+          "omio"
+        ],
+        "summary": "Roundtrip Omio",
+        "description": "Il giro completo con Omio: andata + ritorno multi-modale.\n\nIl totale \u00e8 la somma dei migliori viaggi per tratta (Omio non espone\ncoppie collegate); `outbound_alternatives`/`inbound_alternatives`\nriportano il minimo per ogni mezzo, cos\u00ec la GUI mostra es. il volo\naccanto al bus senza altre richieste.",
+        "operationId": "roundtrip_omio_omio_roundtrip_get",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "From"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "To"
+            }
+          },
+          {
+            "name": "out",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "title": "Out"
+            }
+          },
+          {
+            "name": "back",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "title": "Back"
+            }
+          },
+          {
+            "name": "modes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(train|flight|bus)(,(train|flight|bus))*$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Modes"
+            }
+          },
+          {
+            "name": "adults",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 9,
+              "minimum": 1,
+              "default": 1,
+              "title": "Adults"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OmioRoundtripResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/omio/roundtrip/stream": {
+      "get": {
+        "tags": [
+          "omio"
+        ],
+        "summary": "Roundtrip Omio Stream",
+        "description": "Roundtrip in streaming: ogni tratta arriva appena il provider risponde.\n\nEventi: `leg` (direction + journey + alternatives), poi `done` col totale.\nLa GUI mostra la prima tratta senza aspettare la fine della seconda.",
+        "operationId": "roundtrip_omio_stream_omio_roundtrip_stream_get",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "From"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "To"
+            }
+          },
+          {
+            "name": "out",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "title": "Out"
+            }
+          },
+          {
+            "name": "back",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "title": "Back"
+            }
+          },
+          {
+            "name": "modes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(train|flight|bus)(,(train|flight|bus))*$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Modes"
+            }
+          },
+          {
+            "name": "adults",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 9,
+              "minimum": 1,
+              "default": 1,
+              "title": "Adults"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/roundtrip/stream": {
+      "get": {
+        "tags": [
+          "roundtrip"
+        ],
+        "summary": "Roundtrip Stream",
+        "description": "Roundtrip multi-provider in streaming: Omio + diretti in parallelo.\n\nEventi: `leg` (direction + journey + alternatives), poi `done` col totale\ne i provider falliti. La GUI mostra la prima tratta senza aspettare la fine\ndella seconda; in caso di errore arriva `error` con `code`/`user_message`.",
+        "operationId": "roundtrip_stream_roundtrip_stream_get",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "From"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "To"
+            }
+          },
+          {
+            "name": "out",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "title": "Out"
+            }
+          },
+          {
+            "name": "back",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "title": "Back"
+            }
+          },
+          {
+            "name": "modes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(train|flight|bus)(,(train|flight|bus))*$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Modes"
+            }
+          },
+          {
+            "name": "adults",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 9,
+              "minimum": 1,
+              "default": 1,
+              "title": "Adults"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trips/openjaw": {
+      "get": {
+        "tags": [
+          "trips"
+        ],
+        "summary": "Openjaw",
+        "operationId": "openjaw_trips_openjaw_get",
+        "parameters": [
+          {
+            "name": "from_home",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 80,
+              "title": "From Home"
+            }
+          },
+          {
+            "name": "area",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 2,
+              "pattern": "^[A-Za-z]{2}$",
+              "title": "Area"
+            }
+          },
+          {
+            "name": "window",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 19,
+              "maxLength": 21,
+              "title": "Window"
+            }
+          },
+          {
+            "name": "nights",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "maximum": 30,
+              "minimum": 1,
+              "title": "Nights"
+            }
+          },
+          {
+            "name": "travelers",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 9,
+              "minimum": 1,
+              "default": 1,
+              "title": "Travelers"
+            }
+          },
+          {
+            "name": "radius_km",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "default": 250,
+              "title": "Radius Km"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenjawResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trips/loop": {
+      "post": {
+        "tags": [
+          "trips"
+        ],
+        "summary": "Loop Trip",
+        "operationId": "loop_trip_trips_loop_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoopRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoopResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trains/departures": {
+      "get": {
+        "tags": [
+          "trains"
+        ],
+        "summary": "Departures",
+        "operationId": "departures_trains_departures_get",
+        "parameters": [
+          {
+            "name": "station",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 4,
+              "maxLength": 12,
+              "title": "Station"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrainDeparturesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trains/stations": {
+      "get": {
+        "tags": [
+          "trains"
+        ],
+        "summary": "Stations",
+        "description": "Autocompletamento sul catalogo (selezione stazioni per la ricerca).",
+        "operationId": "stations_trains_stations_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 80,
+              "title": "Q"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrainStationListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trains/search": {
+      "get": {
+        "tags": [
+          "trains"
+        ],
+        "summary": "Search Trains",
+        "description": "Corse con prezzo minimo per persona, ordinate per partenza.\n\nGli id sono SOLO quelli del catalogo (`train_station`): stazione assente\n-> 404. Gli orari sono gi\u00e0 ISO con offset (assoluti): nessuna conversione.",
+        "operationId": "search_trains_trains_search_get",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "From"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "To"
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "title": "Date"
+            }
+          },
+          {
+            "name": "time",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{2}:\\d{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Time"
+            }
+          },
+          {
+            "name": "adults",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 9,
+              "minimum": 1,
+              "default": 1,
+              "title": "Adults"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrainSearchResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/hafas/positions": {
+      "get": {
+        "tags": [
+          "hafas"
+        ],
+        "summary": "Positions",
+        "description": "Autocompletamento stazioni DB (id stabili per la ricerca).",
+        "operationId": "positions_hafas_positions_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 80,
+              "title": "Q"
+            }
+          },
+          {
+            "name": "results",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10,
+              "minimum": 1,
+              "default": 10,
+              "title": "Results"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HafasPositionsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/hafas/search": {
+      "get": {
+        "tags": [
+          "hafas"
+        ],
+        "summary": "Search",
+        "description": "Soluzioni per la coppia (partenza al mattino), prezzo per persona.",
+        "operationId": "search_hafas_search_get",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 128,
+              "title": "From"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 128,
+              "title": "To"
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "title": "Date"
+            }
+          },
+          {
+            "name": "results",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10,
+              "minimum": 1,
+              "default": 5,
+              "title": "Results"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HafasSearchResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/iris/departures": {
+      "get": {
+        "tags": [
+          "iris"
+        ],
+        "summary": "Departures",
+        "description": "Partenze con ritardo per stazione (EVA).\n\nProva IRIS diretto, se WAF/fallback passa a db-rest.",
+        "operationId": "departures_iris_departures_get",
+        "parameters": [
+          {
+            "name": "station",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "EVA number (es. 8000105 M\u00fcnchen Hbf) o HAFAS id",
+              "title": "Station"
+            },
+            "description": "EVA number (es. 8000105 M\u00fcnchen Hbf) o HAFAS id"
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "YYYY-MM-DD, default oggi",
+              "title": "Date"
+            },
+            "description": "YYYY-MM-DD, default oggi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IrisDeparturesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trails/search": {
+      "get": {
+        "tags": [
+          "trails"
+        ],
+        "summary": "Search Trails",
+        "description": "Cerca sentieri attorno a lat/lon.\n\n`provider=all` interroga in parallelo Wikiloc, Komoot, Waymarked e Outdooractive e fonde;\nsingolo provider interroga solo quello (se manca key \u2192 503, Trentino/Alto Adige solo su Outdooractive).",
+        "operationId": "search_trails_trails_search_get",
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "maximum": 90,
+              "minimum": -90,
+              "title": "Lat"
+            }
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "maximum": 180,
+              "minimum": -180,
+              "title": "Lon"
+            }
+          },
+          {
+            "name": "radius_m",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50000,
+              "minimum": 1000,
+              "default": 10000,
+              "title": "Radius M"
+            }
+          },
+          {
+            "name": "provider",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "wikiloc",
+                "komoot",
+                "waymarked",
+                "outdooractive",
+                "all"
+              ],
+              "type": "string",
+              "default": "all",
+              "title": "Provider"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 20,
+              "minimum": 1,
+              "default": 10,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrailsSearchResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trails/{provider}/{trail_id}/gpx": {
+      "get": {
+        "tags": [
+          "trails"
+        ],
+        "summary": "Download Gpx",
+        "description": "Scarica GPX 1.1 per trail id (proxy con cache, content-type gpx+xml).",
+        "operationId": "download_gpx_trails__provider___trail_id__gpx_get",
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "wikiloc",
+                "komoot",
+                "waymarked",
+                "outdooractive"
+              ],
+              "type": "string",
+              "title": "Provider"
+            }
+          },
+          {
+            "name": "trail_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Trail Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/itinerary/plan": {
+      "post": {
+        "tags": [
+          "itinerary"
+        ],
+        "summary": "Plan Itinerary",
+        "description": "Genera itinerario smart con orari veri \u2014 valuta anche il meteo (pioggia >5mm \u2192 warning indoor).",
+        "operationId": "plan_itinerary_itinerary_plan_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ItineraryPlanRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItineraryPlanResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/itinerary/places": {
+      "get": {
+        "tags": [
+          "itinerary"
+        ],
+        "summary": "Preview Places",
+        "description": "Preview pool Place per citt\u00e0 (per mappa prima di plan).",
+        "operationId": "preview_places_itinerary_places_get",
+        "parameters": [
+          {
+            "name": "city",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "title": "City"
+            }
+          },
+          {
+            "name": "tags",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "comma-separated tags: urbex,hidden-gem,culture...",
+              "title": "Tags"
+            },
+            "description": "comma-separated tags: urbex,hidden-gem,culture..."
+          },
+          {
+            "name": "radius_m",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50000,
+              "minimum": 1000,
+              "default": 8000,
+              "title": "Radius M"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PlaceView"
+                  },
+                  "title": "Response Preview Places Itinerary Places Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trips/saved": {
+      "get": {
+        "tags": [
+          "trips"
+        ],
+        "summary": "List Trips",
+        "operationId": "list_trips_trips_saved_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedTripList"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "trips"
+        ],
+        "summary": "Save Trip",
+        "operationId": "save_trip_trips_saved_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveTripRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedTripView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/trips/saved/{trip_id}": {
+      "get": {
+        "tags": [
+          "trips"
+        ],
+        "summary": "Get Trip",
+        "operationId": "get_trip_trips_saved__trip_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "trip_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Trip Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedTripView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "trips"
+        ],
+        "summary": "Delete Trip",
+        "operationId": "delete_trip_trips_saved__trip_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "trip_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Trip Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trips/saved/{trip_id}/prompt": {
+      "get": {
+        "tags": [
+          "trips"
+        ],
+        "summary": "Trip Prompt",
+        "operationId": "trip_prompt_trips_saved__trip_id__prompt_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "trip_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Trip Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromptResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/estimate/car": {
+      "post": {
+        "tags": [
+          "estimate"
+        ],
+        "summary": "Estimate Car Endpoint",
+        "operationId": "estimate_car_endpoint_estimate_car_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CarRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CarResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fuel/stations": {
+      "get": {
+        "tags": [
+          "fuel"
+        ],
+        "summary": "Fuel Stations",
+        "operationId": "fuel_stations_fuel_stations_get",
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "maximum": 90,
+              "minimum": -90,
+              "title": "Lat"
+            }
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "maximum": 180,
+              "minimum": -180,
+              "title": "Lon"
+            }
+          },
+          {
+            "name": "radius_km",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 50,
+              "exclusiveMinimum": 0,
+              "default": 10,
+              "title": "Radius Km"
+            }
+          },
+          {
+            "name": "fuel",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 2,
+                  "maxLength": 32
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Fuel"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FuelStationsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/weather/forecast": {
+      "get": {
+        "tags": [
+          "weather"
+        ],
+        "summary": "Forecast",
+        "description": "Previsioni meteo giornaliere per lat/lon e finestra inclusa con pi\u00f9 modelli EU.\n\nFinestra max 7 giorni (OPENMETEO_MAX_DAYS): oltre -> 400 con limite\nesplicito (RNF-05). Date passate ammesse. Aggrega Open-Meteo (ECMWF/DWD/M\u00e9t\u00e9o-France)\ne Met Norway (European, gratis) \u2014 per itinerario valuta meteo: pioggia >5mm \u2192 warning indoor.\nSe uno fallisce, l'altro copre (mai 500).",
+        "operationId": "forecast_weather_forecast_get",
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "maximum": 90,
+              "minimum": -90,
+              "description": "Latitudine",
+              "title": "Lat"
+            },
+            "description": "Latitudine"
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "maximum": 180,
+              "minimum": -180,
+              "description": "Longitudine",
+              "title": "Lon"
+            },
+            "description": "Longitudine"
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "description": "YYYY-MM-DD, inizio finestra",
+              "title": "Start Date"
+            },
+            "description": "YYYY-MM-DD, inizio finestra"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "description": "YYYY-MM-DD, fine finestra",
+              "title": "End Date"
+            },
+            "description": "YYYY-MM-DD, fine finestra"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeatherForecastResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AggregatedFareView": {
+        "properties": {
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "flight_number": {
+            "type": "string",
+            "title": "Flight Number"
+          },
+          "origin": {
+            "type": "string",
+            "title": "Origin"
+          },
+          "destination": {
+            "type": "string",
+            "title": "Destination"
+          },
+          "departure_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Departure At"
+          },
+          "arrival_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Arrival At"
+          },
+          "price_per_person_eur": {
+            "type": "number",
+            "title": "Price Per Person Eur"
+          },
+          "seen_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Seen At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "provider",
+          "flight_number",
+          "origin",
+          "destination",
+          "departure_at",
+          "arrival_at",
+          "price_per_person_eur",
+          "seen_at"
+        ],
+        "title": "AggregatedFareView"
+      },
+      "AggregatedResponse": {
+        "properties": {
+          "flights": {
+            "items": {
+              "$ref": "#/components/schemas/AggregatedFareView"
+            },
+            "type": "array",
+            "title": "Flights"
+          },
+          "providers_failed": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Providers Failed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "flights",
+          "providers_failed"
+        ],
+        "title": "AggregatedResponse"
+      },
+      "AlertListResponse": {
+        "properties": {
+          "alerts": {
+            "items": {
+              "$ref": "#/components/schemas/AlertView"
+            },
+            "type": "array",
+            "title": "Alerts"
+          }
+        },
+        "type": "object",
+        "required": [
+          "alerts"
+        ],
+        "title": "AlertListResponse"
+      },
+      "AlertView": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "from_position_id": {
+            "type": "integer",
+            "title": "From Position Id"
+          },
+          "to_position_id": {
+            "type": "integer",
+            "title": "To Position Id"
+          },
+          "from_name": {
+            "type": "string",
+            "title": "From Name"
+          },
+          "to_name": {
+            "type": "string",
+            "title": "To Name"
+          },
+          "travel_date": {
+            "type": "string",
+            "title": "Travel Date"
+          },
+          "modes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Modes"
+          },
+          "max_price_cents": {
+            "type": "integer",
+            "title": "Max Price Cents"
+          },
+          "notify_email": {
+            "type": "boolean",
+            "title": "Notify Email"
+          },
+          "notify_browser": {
+            "type": "boolean",
+            "title": "Notify Browser"
+          },
+          "active": {
+            "type": "boolean",
+            "title": "Active"
+          },
+          "last_price_eur": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Price Eur"
+          },
+          "last_checked_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Checked At"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "from_position_id",
+          "to_position_id",
+          "from_name",
+          "to_name",
+          "travel_date",
+          "modes",
+          "max_price_cents",
+          "notify_email",
+          "notify_browser",
+          "active",
+          "created_at"
+        ],
+        "title": "AlertView"
+      },
+      "AnywhereDestinationView": {
+        "properties": {
+          "position_id": {
+            "type": "integer",
+            "title": "Position Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "country": {
+            "type": "string",
+            "title": "Country"
+          },
+          "price_per_person_eur": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Per Person Eur"
+          },
+          "departure_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Departure At"
+          },
+          "duration_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Minutes"
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mode"
+          },
+          "operator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operator"
+          }
+        },
+        "type": "object",
+        "required": [
+          "position_id",
+          "name",
+          "country",
+          "price_per_person_eur",
+          "departure_at",
+          "duration_minutes",
+          "mode",
+          "operator"
+        ],
+        "title": "AnywhereDestinationView"
+      },
+      "AnywhereResponse": {
+        "properties": {
+          "from_position": {
+            "type": "string",
+            "title": "From Position"
+          },
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "modes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Modes"
+          },
+          "providers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Providers"
+          },
+          "destinations": {
+            "items": {
+              "$ref": "#/components/schemas/AnywhereDestinationView"
+            },
+            "type": "array",
+            "title": "Destinations"
+          },
+          "evaluated": {
+            "type": "integer",
+            "title": "Evaluated"
+          },
+          "with_prices": {
+            "type": "integer",
+            "title": "With Prices"
+          },
+          "partial": {
+            "type": "boolean",
+            "title": "Partial"
+          },
+          "providers_failed": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Providers Failed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "from_position",
+          "date",
+          "modes",
+          "providers",
+          "destinations",
+          "evaluated",
+          "with_prices",
+          "partial",
+          "providers_failed"
+        ],
+        "title": "AnywhereResponse"
+      },
+      "BlockView": {
+        "properties": {
+          "start": {
+            "type": "string",
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "title": "End"
+          },
+          "place": {
+            "$ref": "#/components/schemas/PlaceView"
+          },
+          "travel_min": {
+            "type": "integer",
+            "title": "Travel Min"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "start",
+          "end",
+          "place",
+          "travel_min"
+        ],
+        "title": "BlockView"
+      },
+      "BusCityListResponse": {
+        "properties": {
+          "cities": {
+            "items": {
+              "$ref": "#/components/schemas/BusCityView"
+            },
+            "type": "array",
+            "title": "Cities"
+          }
+        },
+        "type": "object",
+        "required": [
+          "cities"
+        ],
+        "title": "BusCityListResponse"
+      },
+      "BusCityView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "country": {
+            "type": "string",
+            "title": "Country"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "country"
+        ],
+        "title": "BusCityView"
+      },
+      "BusSearchResponse": {
+        "properties": {
+          "from_city": {
+            "type": "string",
+            "title": "From City"
+          },
+          "to_city": {
+            "type": "string",
+            "title": "To City"
+          },
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "trips": {
+            "items": {
+              "$ref": "#/components/schemas/BusTripView"
+            },
+            "type": "array",
+            "title": "Trips"
+          },
+          "providers_failed": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Providers Failed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "from_city",
+          "to_city",
+          "date",
+          "trips",
+          "providers_failed"
+        ],
+        "title": "BusSearchResponse"
+      },
+      "BusTripView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "departure_at": {
+            "type": "string",
+            "title": "Departure At"
+          },
+          "arrival_at": {
+            "type": "string",
+            "title": "Arrival At"
+          },
+          "duration_minutes": {
+            "type": "integer",
+            "title": "Duration Minutes"
+          },
+          "price_per_person_eur": {
+            "type": "number",
+            "title": "Price Per Person Eur"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "operator": {
+            "type": "string",
+            "title": "Operator"
+          },
+          "transfer_type": {
+            "type": "string",
+            "title": "Transfer Type"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "departure_at",
+          "arrival_at",
+          "duration_minutes",
+          "price_per_person_eur",
+          "currency",
+          "operator",
+          "transfer_type",
+          "status"
+        ],
+        "title": "BusTripView"
+      },
+      "CarRequest": {
+        "properties": {
+          "from_city": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 2,
+            "title": "From City"
+          },
+          "to_city": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 2,
+            "title": "To City"
+          },
+          "fuel_type": {
+            "type": "string",
+            "title": "Fuel Type",
+            "default": "lpg"
+          },
+          "travelers": {
+            "type": "integer",
+            "maximum": 9.0,
+            "minimum": 1.0,
+            "title": "Travelers",
+            "default": 1
+          },
+          "km_per_liter": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Km Per Liter"
+          },
+          "eur_per_liter": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eur Per Liter"
+          },
+          "toll_eur": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Toll Eur",
+            "default": 0.0
+          }
+        },
+        "type": "object",
+        "required": [
+          "from_city",
+          "to_city"
+        ],
+        "title": "CarRequest"
+      },
+      "CarResponse": {
+        "properties": {
+          "from_city": {
+            "type": "string",
+            "title": "From City"
+          },
+          "to_city": {
+            "type": "string",
+            "title": "To City"
+          },
+          "fuel_type": {
+            "type": "string",
+            "title": "Fuel Type"
+          },
+          "distance_km": {
+            "type": "number",
+            "title": "Distance Km"
+          },
+          "duration_minutes": {
+            "type": "integer",
+            "title": "Duration Minutes"
+          },
+          "fuel_cost_eur": {
+            "type": "number",
+            "title": "Fuel Cost Eur"
+          },
+          "toll_cost_eur": {
+            "type": "number",
+            "title": "Toll Cost Eur"
+          },
+          "total_eur": {
+            "type": "number",
+            "title": "Total Eur"
+          },
+          "per_person_eur": {
+            "type": "number",
+            "title": "Per Person Eur"
+          },
+          "estimated": {
+            "type": "boolean",
+            "title": "Estimated"
+          }
+        },
+        "type": "object",
+        "required": [
+          "from_city",
+          "to_city",
+          "fuel_type",
+          "distance_km",
+          "duration_minutes",
+          "fuel_cost_eur",
+          "toll_cost_eur",
+          "total_eur",
+          "per_person_eur",
+          "estimated"
+        ],
+        "title": "CarResponse"
+      },
+      "CostBreakdownView": {
+        "properties": {
+          "outbound_fare_eur": {
+            "type": "number",
+            "title": "Outbound Fare Eur"
+          },
+          "inbound_fare_eur": {
+            "type": "number",
+            "title": "Inbound Fare Eur"
+          },
+          "total_eur": {
+            "type": "number",
+            "title": "Total Eur"
+          },
+          "per_person_eur": {
+            "type": "number",
+            "title": "Per Person Eur"
+          },
+          "group_total_eur": {
+            "type": "number",
+            "title": "Group Total Eur"
+          },
+          "approach_outbound_eur": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approach Outbound Eur"
+          },
+          "approach_inbound_eur": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approach Inbound Eur"
+          },
+          "approach_estimated": {
+            "type": "boolean",
+            "title": "Approach Estimated",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "outbound_fare_eur",
+          "inbound_fare_eur",
+          "total_eur",
+          "per_person_eur",
+          "group_total_eur"
+        ],
+        "title": "CostBreakdownView"
+      },
+      "CreateAlertRequest": {
+        "properties": {
+          "from_position_id": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "From Position Id"
+          },
+          "to_position_id": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "To Position Id"
+          },
+          "travel_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Travel Date"
+          },
+          "max_price_cents": {
+            "type": "integer",
+            "title": "Max Price Cents"
+          },
+          "modes": {
+            "type": "string",
+            "pattern": "^(train|flight|bus)(,(train|flight|bus))*$",
+            "title": "Modes",
+            "default": "train,flight,bus"
+          },
+          "notify_email": {
+            "type": "boolean",
+            "title": "Notify Email",
+            "default": true
+          },
+          "notify_browser": {
+            "type": "boolean",
+            "title": "Notify Browser",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "from_position_id",
+          "to_position_id",
+          "travel_date",
+          "max_price_cents"
+        ],
+        "title": "CreateAlertRequest"
+      },
+      "DailyForecastView": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "temp_max_c": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temp Max C"
+          },
+          "temp_min_c": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temp Min C"
+          },
+          "precipitation_mm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Precipitation Mm"
+          },
+          "wind_max_kmh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wind Max Kmh"
+          },
+          "weathercode": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weathercode"
+          }
+        },
+        "type": "object",
+        "required": [
+          "date",
+          "temp_max_c",
+          "temp_min_c",
+          "precipitation_mm",
+          "wind_max_kmh",
+          "weathercode"
+        ],
+        "title": "DailyForecastView"
+      },
+      "DayPlanView": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "wake": {
+            "type": "string",
+            "title": "Wake"
+          },
+          "sleep": {
+            "type": "string",
+            "title": "Sleep"
+          },
+          "blocks": {
+            "items": {
+              "$ref": "#/components/schemas/BlockView"
+            },
+            "type": "array",
+            "title": "Blocks"
+          },
+          "free_min": {
+            "type": "integer",
+            "title": "Free Min"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "date",
+          "wake",
+          "sleep",
+          "blocks",
+          "free_min",
+          "warnings"
+        ],
+        "title": "DayPlanView"
+      },
+      "DayTripRequest": {
+        "properties": {
+          "stop": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 2,
+            "title": "Stop"
+          },
+          "destination": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 2,
+            "title": "Destination"
+          }
+        },
+        "type": "object",
+        "required": [
+          "stop",
+          "destination"
+        ],
+        "title": "DayTripRequest"
+      },
+      "DestinationView": {
+        "properties": {
+          "iata": {
+            "type": "string",
+            "title": "Iata"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "country": {
+            "type": "string",
+            "title": "Country"
+          },
+          "best_origin": {
+            "type": "string",
+            "title": "Best Origin"
+          },
+          "min_price_eur": {
+            "type": "number",
+            "title": "Min Price Eur"
+          },
+          "return_price_eur": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Return Price Eur"
+          },
+          "roundtrip_min_eur": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Roundtrip Min Eur"
+          },
+          "seen_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seen At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "iata",
+          "name",
+          "country",
+          "best_origin",
+          "min_price_eur"
+        ],
+        "title": "DestinationView"
+      },
+      "FareView": {
+        "properties": {
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "flight_number": {
+            "type": "string",
+            "title": "Flight Number"
+          },
+          "origin": {
+            "type": "string",
+            "title": "Origin"
+          },
+          "destination": {
+            "type": "string",
+            "title": "Destination"
+          },
+          "departure_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Departure At"
+          },
+          "arrival_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Arrival At"
+          },
+          "price_per_person_eur": {
+            "type": "number",
+            "title": "Price Per Person Eur"
+          },
+          "group_price_eur": {
+            "type": "number",
+            "title": "Group Price Eur"
+          },
+          "seen_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Seen At"
+          },
+          "previous_price_eur": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous Price Eur"
+          }
+        },
+        "type": "object",
+        "required": [
+          "provider",
+          "flight_number",
+          "origin",
+          "destination",
+          "departure_at",
+          "arrival_at",
+          "price_per_person_eur",
+          "group_price_eur",
+          "seen_at"
+        ],
+        "title": "FareView"
+      },
+      "FuelStationView": {
+        "properties": {
+          "id_impianto": {
+            "type": "string",
+            "title": "Id Impianto"
+          },
+          "nome": {
+            "type": "string",
+            "title": "Nome"
+          },
+          "gestore": {
+            "type": "string",
+            "title": "Gestore"
+          },
+          "indirizzo": {
+            "type": "string",
+            "title": "Indirizzo"
+          },
+          "comune": {
+            "type": "string",
+            "title": "Comune"
+          },
+          "provincia": {
+            "type": "string",
+            "title": "Provincia"
+          },
+          "lat": {
+            "type": "number",
+            "title": "Lat"
+          },
+          "lon": {
+            "type": "number",
+            "title": "Lon"
+          },
+          "distance_km": {
+            "type": "number",
+            "title": "Distance Km"
+          },
+          "price_eur": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Eur"
+          },
+          "price_for_fuel": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price For Fuel"
+          },
+          "extraction_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extraction Date"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id_impianto",
+          "nome",
+          "gestore",
+          "indirizzo",
+          "comune",
+          "provincia",
+          "lat",
+          "lon",
+          "distance_km"
+        ],
+        "title": "FuelStationView"
+      },
+      "FuelStationsResponse": {
+        "properties": {
+          "stations": {
+            "items": {
+              "$ref": "#/components/schemas/FuelStationView"
+            },
+            "type": "array",
+            "title": "Stations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "stations"
+        ],
+        "title": "FuelStationsResponse"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HafasJourneyView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "departure_at": {
+            "type": "string",
+            "title": "Departure At"
+          },
+          "arrival_at": {
+            "type": "string",
+            "title": "Arrival At"
+          },
+          "duration_minutes": {
+            "type": "integer",
+            "title": "Duration Minutes"
+          },
+          "price_per_person_eur": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Per Person Eur"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "operator": {
+            "type": "string",
+            "title": "Operator"
+          },
+          "transfers": {
+            "type": "integer",
+            "title": "Transfers"
+          },
+          "via": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Via"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "departure_at",
+          "arrival_at",
+          "duration_minutes",
+          "price_per_person_eur",
+          "currency",
+          "operator",
+          "transfers",
+          "via",
+          "status"
+        ],
+        "title": "HafasJourneyView"
+      },
+      "HafasPositionView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "area": {
+            "type": "string",
+            "title": "Area"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "area"
+        ],
+        "title": "HafasPositionView"
+      },
+      "HafasPositionsResponse": {
+        "properties": {
+          "positions": {
+            "items": {
+              "$ref": "#/components/schemas/HafasPositionView"
+            },
+            "type": "array",
+            "title": "Positions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "positions"
+        ],
+        "title": "HafasPositionsResponse"
+      },
+      "HafasSearchResponse": {
+        "properties": {
+          "from_position": {
+            "type": "string",
+            "title": "From Position"
+          },
+          "to_position": {
+            "type": "string",
+            "title": "To Position"
+          },
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "journeys": {
+            "items": {
+              "$ref": "#/components/schemas/HafasJourneyView"
+            },
+            "type": "array",
+            "title": "Journeys"
+          }
+        },
+        "type": "object",
+        "required": [
+          "from_position",
+          "to_position",
+          "date",
+          "journeys"
+        ],
+        "title": "HafasSearchResponse"
+      },
+      "InviteListResponse": {
+        "properties": {
+          "invites": {
+            "items": {
+              "$ref": "#/components/schemas/InviteView"
+            },
+            "type": "array",
+            "title": "Invites"
+          }
+        },
+        "type": "object",
+        "required": [
+          "invites"
+        ],
+        "title": "InviteListResponse"
+      },
+      "InviteRequest": {
+        "properties": {
+          "expires_in_days": {
+            "type": "integer",
+            "maximum": 365.0,
+            "minimum": 1.0,
+            "title": "Expires In Days"
+          }
+        },
+        "type": "object",
+        "required": [
+          "expires_in_days"
+        ],
+        "title": "InviteRequest"
+      },
+      "InviteResponse": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "expires_at": {
+            "type": "string",
+            "title": "Expires At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "expires_at"
+        ],
+        "title": "InviteResponse"
+      },
+      "InviteView": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "expires_at": {
+            "type": "string",
+            "title": "Expires At"
+          },
+          "used_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Used By"
+          },
+          "used_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Used At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "expires_at"
+        ],
+        "title": "InviteView"
+      },
+      "IrisDepartureView": {
+        "properties": {
+          "train_id": {
+            "type": "string",
+            "title": "Train Id"
+          },
+          "station_eva": {
+            "type": "string",
+            "title": "Station Eva"
+          },
+          "planned_time": {
+            "type": "string",
+            "title": "Planned Time"
+          },
+          "changed_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Changed Time"
+          },
+          "delay_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delay Minutes"
+          },
+          "platform": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Platform"
+          },
+          "changed_platform": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Changed Platform"
+          },
+          "line": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Line"
+          },
+          "cancelled": {
+            "type": "boolean",
+            "title": "Cancelled"
+          }
+        },
+        "type": "object",
+        "required": [
+          "train_id",
+          "station_eva",
+          "planned_time",
+          "changed_time",
+          "delay_minutes",
+          "platform",
+          "changed_platform",
+          "line",
+          "cancelled"
+        ],
+        "title": "IrisDepartureView"
+      },
+      "IrisDeparturesResponse": {
+        "properties": {
+          "station": {
+            "type": "string",
+            "title": "Station"
+          },
+          "departures": {
+            "items": {
+              "$ref": "#/components/schemas/IrisDepartureView"
+            },
+            "type": "array",
+            "title": "Departures"
+          }
+        },
+        "type": "object",
+        "required": [
+          "station",
+          "departures"
+        ],
+        "title": "IrisDeparturesResponse"
+      },
+      "ItineraryPlanRequest": {
+        "properties": {
+          "city": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "City"
+          },
+          "days": {
+            "type": "integer",
+            "maximum": 14.0,
+            "minimum": 1.0,
+            "title": "Days"
+          },
+          "travel_types_weights": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Travel Types Weights",
+            "description": "tipo\u2192peso 0..100, somma 100"
+          },
+          "wake_time": {
+            "type": "string",
+            "pattern": "^\\d{2}:\\d{2}$",
+            "title": "Wake Time",
+            "default": "07:30"
+          },
+          "sleep_time": {
+            "type": "string",
+            "pattern": "^\\d{2}:\\d{2}$",
+            "title": "Sleep Time",
+            "default": "23:00"
+          },
+          "wants_urbex": {
+            "type": "boolean",
+            "title": "Wants Urbex",
+            "default": false
+          },
+          "wants_hidden": {
+            "type": "boolean",
+            "title": "Wants Hidden",
+            "default": false
+          },
+          "pace": {
+            "type": "string",
+            "pattern": "^(relaxed|balanced|intense)$",
+            "title": "Pace",
+            "default": "balanced"
+          },
+          "start_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Date"
+          }
+        },
+        "type": "object",
+        "required": [
+          "city",
+          "days",
+          "travel_types_weights"
+        ],
+        "title": "ItineraryPlanRequest"
+      },
+      "ItineraryPlanResponse": {
+        "properties": {
+          "city": {
+            "type": "string",
+            "title": "City"
+          },
+          "days": {
+            "type": "integer",
+            "title": "Days"
+          },
+          "preferences": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Preferences"
+          },
+          "places_pool": {
+            "items": {
+              "$ref": "#/components/schemas/PlaceView"
+            },
+            "type": "array",
+            "title": "Places Pool"
+          },
+          "days_plan": {
+            "items": {
+              "$ref": "#/components/schemas/DayPlanView"
+            },
+            "type": "array",
+            "title": "Days Plan"
+          },
+          "total_cost_eur": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Cost Eur"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "weather_evaluated": {
+            "type": "boolean",
+            "title": "Weather Evaluated",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "city",
+          "days",
+          "preferences",
+          "places_pool",
+          "days_plan",
+          "warnings"
+        ],
+        "title": "ItineraryPlanResponse"
+      },
+      "LocalHopView": {
+        "properties": {
+          "from_city": {
+            "type": "string",
+            "title": "From City"
+          },
+          "to_city": {
+            "type": "string",
+            "title": "To City"
+          },
+          "mode": {
+            "type": "string",
+            "title": "Mode"
+          },
+          "country": {
+            "type": "string",
+            "title": "Country"
+          },
+          "distance_km": {
+            "type": "number",
+            "title": "Distance Km"
+          },
+          "duration_minutes": {
+            "type": "integer",
+            "title": "Duration Minutes"
+          },
+          "cost_per_person_eur": {
+            "type": "number",
+            "title": "Cost Per Person Eur"
+          },
+          "cost_total_eur": {
+            "type": "number",
+            "title": "Cost Total Eur"
+          },
+          "estimated": {
+            "type": "boolean",
+            "title": "Estimated"
+          }
+        },
+        "type": "object",
+        "required": [
+          "from_city",
+          "to_city",
+          "mode",
+          "country",
+          "distance_km",
+          "duration_minutes",
+          "cost_per_person_eur",
+          "cost_total_eur",
+          "estimated"
+        ],
+        "title": "LocalHopView"
+      },
+      "LocationListResponse": {
+        "properties": {
+          "locations": {
+            "items": {
+              "$ref": "#/components/schemas/LocationView"
+            },
+            "type": "array",
+            "title": "Locations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "locations"
+        ],
+        "title": "LocationListResponse"
+      },
+      "LocationView": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "country": {
+            "type": "string",
+            "title": "Country"
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "provider_location_id": {
+            "type": "string",
+            "title": "Provider Location Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "kind",
+          "country",
+          "provider",
+          "provider_location_id"
+        ],
+        "title": "LocationView"
+      },
+      "LoginRequest": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 3,
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "LoginRequest"
+      },
+      "LoopHopView": {
+        "properties": {
+          "from_city": {
+            "type": "string",
+            "title": "From City"
+          },
+          "to_city": {
+            "type": "string",
+            "title": "To City"
+          },
+          "mode": {
+            "type": "string",
+            "title": "Mode"
+          },
+          "duration_minutes": {
+            "type": "integer",
+            "title": "Duration Minutes"
+          },
+          "cost_per_person_eur": {
+            "type": "number",
+            "title": "Cost Per Person Eur"
+          },
+          "estimated": {
+            "type": "boolean",
+            "title": "Estimated"
+          }
+        },
+        "type": "object",
+        "required": [
+          "from_city",
+          "to_city",
+          "mode",
+          "duration_minutes",
+          "cost_per_person_eur",
+          "estimated"
+        ],
+        "title": "LoopHopView"
+      },
+      "LoopRequest": {
+        "properties": {
+          "home_city": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 2,
+            "title": "Home City"
+          },
+          "area": {
+            "type": "string",
+            "maxLength": 2,
+            "minLength": 2,
+            "pattern": "^[A-Za-z]{2}$",
+            "title": "Area"
+          },
+          "window": {
+            "type": "string",
+            "maxLength": 21,
+            "minLength": 19,
+            "title": "Window"
+          },
+          "nights": {
+            "type": "integer",
+            "maximum": 30.0,
+            "minimum": 1.0,
+            "title": "Nights"
+          },
+          "travelers": {
+            "type": "integer",
+            "maximum": 9.0,
+            "minimum": 1.0,
+            "title": "Travelers",
+            "default": 1
+          },
+          "stops": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "minItems": 1,
+            "title": "Stops"
+          },
+          "mode": {
+            "type": "string",
+            "maxLength": 10,
+            "minLength": 3,
+            "title": "Mode",
+            "default": "train"
+          },
+          "radius_km": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Radius Km",
+            "default": 250
+          },
+          "lodging_type": {
+            "type": "string",
+            "maxLength": 16,
+            "minLength": 3,
+            "title": "Lodging Type",
+            "default": "hostel"
+          },
+          "day_trips": {
+            "items": {
+              "$ref": "#/components/schemas/DayTripRequest"
+            },
+            "type": "array",
+            "title": "Day Trips"
+          }
+        },
+        "type": "object",
+        "required": [
+          "home_city",
+          "area",
+          "window",
+          "nights",
+          "stops"
+        ],
+        "title": "LoopRequest"
+      },
+      "LoopResponse": {
+        "properties": {
+          "trips": {
+            "items": {
+              "$ref": "#/components/schemas/LoopTripView"
+            },
+            "type": "array",
+            "title": "Trips"
+          },
+          "stops_requested": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Stops Requested"
+          },
+          "unreachable_stops": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Unreachable Stops"
+          },
+          "providers_failed": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Providers Failed"
+          },
+          "heuristic_used": {
+            "type": "boolean",
+            "title": "Heuristic Used"
+          }
+        },
+        "type": "object",
+        "required": [
+          "trips",
+          "stops_requested",
+          "unreachable_stops",
+          "providers_failed",
+          "heuristic_used"
+        ],
+        "title": "LoopResponse"
+      },
+      "LoopTripView": {
+        "properties": {
+          "entry_iata": {
+            "type": "string",
+            "title": "Entry Iata"
+          },
+          "exit_iata": {
+            "type": "string",
+            "title": "Exit Iata"
+          },
+          "stops": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Stops"
+          },
+          "hops": {
+            "items": {
+              "$ref": "#/components/schemas/LoopHopView"
+            },
+            "type": "array",
+            "title": "Hops"
+          },
+          "inbound_flight": {
+            "$ref": "#/components/schemas/OpenjawFareView"
+          },
+          "outbound_flight": {
+            "$ref": "#/components/schemas/OpenjawFareView"
+          },
+          "approach_outbound_eur": {
+            "type": "number",
+            "title": "Approach Outbound Eur"
+          },
+          "approach_inbound_eur": {
+            "type": "number",
+            "title": "Approach Inbound Eur"
+          },
+          "total_per_person_eur": {
+            "type": "number",
+            "title": "Total Per Person Eur"
+          },
+          "optimized_with_heuristic": {
+            "type": "boolean",
+            "title": "Optimized With Heuristic"
+          },
+          "unreachable_stops": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Unreachable Stops"
+          },
+          "nights_per_stop": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Nights Per Stop"
+          },
+          "accommodation_cost_per_person_eur": {
+            "type": "number",
+            "title": "Accommodation Cost Per Person Eur"
+          },
+          "accommodation_estimated": {
+            "type": "boolean",
+            "title": "Accommodation Estimated"
+          },
+          "accommodation_used_default": {
+            "type": "boolean",
+            "title": "Accommodation Used Default"
+          },
+          "day_trips_cost_per_person_eur": {
+            "type": "number",
+            "title": "Day Trips Cost Per Person Eur"
+          }
+        },
+        "type": "object",
+        "required": [
+          "entry_iata",
+          "exit_iata",
+          "stops",
+          "hops",
+          "inbound_flight",
+          "outbound_flight",
+          "approach_outbound_eur",
+          "approach_inbound_eur",
+          "total_per_person_eur",
+          "optimized_with_heuristic",
+          "unreachable_stops",
+          "nights_per_stop",
+          "accommodation_cost_per_person_eur",
+          "accommodation_estimated",
+          "accommodation_used_default",
+          "day_trips_cost_per_person_eur"
+        ],
+        "title": "LoopTripView"
+      },
+      "MetricsView": {
+        "properties": {
+          "total_calls": {
+            "type": "integer",
+            "title": "Total Calls"
+          },
+          "calls_ok": {
+            "type": "integer",
+            "title": "Calls Ok"
+          },
+          "calls_failed": {
+            "type": "integer",
+            "title": "Calls Failed"
+          },
+          "avg_duration_ms": {
+            "type": "integer",
+            "title": "Avg Duration Ms"
+          },
+          "avg_fares_yielded": {
+            "type": "number",
+            "title": "Avg Fares Yielded"
+          },
+          "effectiveness": {
+            "type": "number",
+            "title": "Effectiveness"
+          },
+          "by_provider": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "type": "integer"
+              },
+              "type": "object"
+            },
+            "type": "object",
+            "title": "By Provider"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_calls",
+          "calls_ok",
+          "calls_failed",
+          "avg_duration_ms",
+          "avg_fares_yielded",
+          "effectiveness",
+          "by_provider"
+        ],
+        "title": "MetricsView"
+      },
+      "NearbyAirportView": {
+        "properties": {
+          "iata": {
+            "type": "string",
+            "title": "Iata"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "city": {
+            "type": "string",
+            "title": "City"
+          },
+          "country": {
+            "type": "string",
+            "title": "Country"
+          },
+          "distance_km": {
+            "type": "number",
+            "title": "Distance Km"
+          },
+          "approach_minutes": {
+            "type": "integer",
+            "title": "Approach Minutes"
+          },
+          "approach_cost_eur": {
+            "type": "number",
+            "title": "Approach Cost Eur"
+          },
+          "estimated": {
+            "type": "boolean",
+            "title": "Estimated",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "iata",
+          "name",
+          "city",
+          "country",
+          "distance_km",
+          "approach_minutes",
+          "approach_cost_eur"
+        ],
+        "title": "NearbyAirportView"
+      },
+      "NearbyResponse": {
+        "properties": {
+          "from_city": {
+            "type": "string",
+            "title": "From City"
+          },
+          "radius_km": {
+            "type": "number",
+            "title": "Radius Km"
+          },
+          "radius_limited": {
+            "type": "boolean",
+            "title": "Radius Limited"
+          },
+          "airports": {
+            "items": {
+              "$ref": "#/components/schemas/NearbyAirportView"
+            },
+            "type": "array",
+            "title": "Airports"
+          }
+        },
+        "type": "object",
+        "required": [
+          "from_city",
+          "radius_km",
+          "radius_limited",
+          "airports"
+        ],
+        "title": "NearbyResponse"
+      },
+      "OmioJourneyView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "departure_at": {
+            "type": "string",
+            "title": "Departure At"
+          },
+          "arrival_at": {
+            "type": "string",
+            "title": "Arrival At"
+          },
+          "duration_minutes": {
+            "type": "integer",
+            "title": "Duration Minutes"
+          },
+          "price_per_person_eur": {
+            "type": "number",
+            "title": "Price Per Person Eur"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "mode": {
+            "type": "string",
+            "title": "Mode"
+          },
+          "company_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Company Id"
+          },
+          "operator": {
+            "type": "string",
+            "title": "Operator"
+          },
+          "stops": {
+            "type": "integer",
+            "title": "Stops"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "departure_at",
+          "arrival_at",
+          "duration_minutes",
+          "price_per_person_eur",
+          "currency",
+          "mode",
+          "company_id",
+          "operator",
+          "stops",
+          "status"
+        ],
+        "title": "OmioJourneyView"
+      },
+      "OmioPositionListResponse": {
+        "properties": {
+          "positions": {
+            "items": {
+              "$ref": "#/components/schemas/OmioPositionView"
+            },
+            "type": "array",
+            "title": "Positions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "positions"
+        ],
+        "title": "OmioPositionListResponse"
+      },
+      "OmioPositionView": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "country": {
+            "type": "string",
+            "title": "Country"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "country"
+        ],
+        "title": "OmioPositionView"
+      },
+      "OmioRoundtripResponse": {
+        "properties": {
+          "from_position": {
+            "type": "string",
+            "title": "From Position"
+          },
+          "to_position": {
+            "type": "string",
+            "title": "To Position"
+          },
+          "outbound_date": {
+            "type": "string",
+            "title": "Outbound Date"
+          },
+          "inbound_date": {
+            "type": "string",
+            "title": "Inbound Date"
+          },
+          "modes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Modes"
+          },
+          "outbound": {
+            "$ref": "#/components/schemas/OmioJourneyView"
+          },
+          "inbound": {
+            "$ref": "#/components/schemas/OmioJourneyView"
+          },
+          "outbound_alternatives": {
+            "items": {
+              "$ref": "#/components/schemas/OmioJourneyView"
+            },
+            "type": "array",
+            "title": "Outbound Alternatives"
+          },
+          "inbound_alternatives": {
+            "items": {
+              "$ref": "#/components/schemas/OmioJourneyView"
+            },
+            "type": "array",
+            "title": "Inbound Alternatives"
+          },
+          "total_per_person_eur": {
+            "type": "number",
+            "title": "Total Per Person Eur"
+          }
+        },
+        "type": "object",
+        "required": [
+          "from_position",
+          "to_position",
+          "outbound_date",
+          "inbound_date",
+          "modes",
+          "outbound",
+          "inbound",
+          "outbound_alternatives",
+          "inbound_alternatives",
+          "total_per_person_eur"
+        ],
+        "title": "OmioRoundtripResponse"
+      },
+      "OmioSearchResponse": {
+        "properties": {
+          "from_position": {
+            "type": "string",
+            "title": "From Position"
+          },
+          "to_position": {
+            "type": "string",
+            "title": "To Position"
+          },
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "modes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Modes"
+          },
+          "journeys": {
+            "items": {
+              "$ref": "#/components/schemas/OmioJourneyView"
+            },
+            "type": "array",
+            "title": "Journeys"
+          },
+          "providers_failed": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Providers Failed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "from_position",
+          "to_position",
+          "date",
+          "modes",
+          "journeys",
+          "providers_failed"
+        ],
+        "title": "OmioSearchResponse"
+      },
+      "OpenjawFareView": {
+        "properties": {
+          "flight_number": {
+            "type": "string",
+            "title": "Flight Number"
+          },
+          "origin": {
+            "type": "string",
+            "title": "Origin"
+          },
+          "destination": {
+            "type": "string",
+            "title": "Destination"
+          },
+          "departure_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Departure At"
+          },
+          "arrival_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Arrival At"
+          },
+          "price_per_person_eur": {
+            "type": "number",
+            "title": "Price Per Person Eur"
+          },
+          "seen_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Seen At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "flight_number",
+          "origin",
+          "destination",
+          "departure_at",
+          "arrival_at",
+          "price_per_person_eur",
+          "seen_at"
+        ],
+        "title": "OpenjawFareView"
+      },
+      "OpenjawResponse": {
+        "properties": {
+          "trips": {
+            "items": {
+              "$ref": "#/components/schemas/OpenjawView"
+            },
+            "type": "array",
+            "title": "Trips"
+          },
+          "pairs_evaluated": {
+            "type": "integer",
+            "title": "Pairs Evaluated"
+          },
+          "pairs_limited": {
+            "type": "boolean",
+            "title": "Pairs Limited"
+          },
+          "providers_failed": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Providers Failed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "trips",
+          "pairs_evaluated",
+          "pairs_limited",
+          "providers_failed"
+        ],
+        "title": "OpenjawResponse"
+      },
+      "OpenjawView": {
+        "properties": {
+          "entry_iata": {
+            "type": "string",
+            "title": "Entry Iata"
+          },
+          "exit_iata": {
+            "type": "string",
+            "title": "Exit Iata"
+          },
+          "approach_outbound_eur": {
+            "type": "number",
+            "title": "Approach Outbound Eur"
+          },
+          "inbound_flight": {
+            "$ref": "#/components/schemas/OpenjawFareView"
+          },
+          "local_hop_eur": {
+            "type": "number",
+            "title": "Local Hop Eur"
+          },
+          "local_hop_duration_minutes": {
+            "type": "integer",
+            "title": "Local Hop Duration Minutes"
+          },
+          "local_hop_estimated": {
+            "type": "boolean",
+            "title": "Local Hop Estimated"
+          },
+          "outbound_flight": {
+            "$ref": "#/components/schemas/OpenjawFareView"
+          },
+          "approach_inbound_eur": {
+            "type": "number",
+            "title": "Approach Inbound Eur"
+          },
+          "total_per_person_eur": {
+            "type": "number",
+            "title": "Total Per Person Eur"
+          },
+          "roundtrip_comparison_total_eur": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Roundtrip Comparison Total Eur"
+          }
+        },
+        "type": "object",
+        "required": [
+          "entry_iata",
+          "exit_iata",
+          "approach_outbound_eur",
+          "inbound_flight",
+          "local_hop_eur",
+          "local_hop_duration_minutes",
+          "local_hop_estimated",
+          "outbound_flight",
+          "approach_inbound_eur",
+          "total_per_person_eur"
+        ],
+        "title": "OpenjawView"
+      },
+      "PlaceView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "lat": {
+            "type": "number",
+            "title": "Lat"
+          },
+          "lon": {
+            "type": "number",
+            "title": "Lon"
+          },
+          "kinds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Kinds"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tags"
+          },
+          "famous": {
+            "type": "integer",
+            "title": "Famous"
+          },
+          "duration_min": {
+            "type": "integer",
+            "title": "Duration Min"
+          },
+          "opening_hours": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Opening Hours"
+          },
+          "cost_eur": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost Eur"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "gpx_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gpx Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "lat",
+          "lon",
+          "kinds",
+          "tags",
+          "famous",
+          "duration_min",
+          "source"
+        ],
+        "title": "PlaceView"
+      },
+      "PromptResponse": {
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "title": "Prompt"
+          }
+        },
+        "type": "object",
+        "required": [
+          "prompt"
+        ],
+        "title": "PromptResponse"
+      },
+      "ProposalStatsView": {
+        "properties": {
+          "created": {
+            "type": "integer",
+            "title": "Created"
+          },
+          "updated": {
+            "type": "integer",
+            "title": "Updated"
+          },
+          "skipped_confirmed": {
+            "type": "integer",
+            "title": "Skipped Confirmed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "created",
+          "updated",
+          "skipped_confirmed"
+        ],
+        "title": "ProposalStatsView"
+      },
+      "ProposalsResponse": {
+        "properties": {
+          "proposals": {
+            "items": {
+              "$ref": "#/components/schemas/StationLinkView"
+            },
+            "type": "array",
+            "title": "Proposals"
+          }
+        },
+        "type": "object",
+        "required": [
+          "proposals"
+        ],
+        "title": "ProposalsResponse"
+      },
+      "RateUpdate": {
+        "properties": {
+          "mode": {
+            "type": "string",
+            "title": "Mode"
+          },
+          "country": {
+            "type": "string",
+            "title": "Country"
+          },
+          "cost_per_km_eur": {
+            "type": "number",
+            "title": "Cost Per Km Eur"
+          },
+          "avg_speed_kmh": {
+            "type": "number",
+            "title": "Avg Speed Kmh"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mode",
+          "country",
+          "cost_per_km_eur",
+          "avg_speed_kmh"
+        ],
+        "title": "RateUpdate"
+      },
+      "RateView": {
+        "properties": {
+          "mode": {
+            "type": "string",
+            "title": "Mode"
+          },
+          "country": {
+            "type": "string",
+            "title": "Country"
+          },
+          "cost_per_km_eur": {
+            "type": "number",
+            "title": "Cost Per Km Eur"
+          },
+          "avg_speed_kmh": {
+            "type": "number",
+            "title": "Avg Speed Kmh"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mode",
+          "country",
+          "cost_per_km_eur",
+          "avg_speed_kmh"
+        ],
+        "title": "RateView"
+      },
+      "RatesResponse": {
+        "properties": {
+          "rates": {
+            "items": {
+              "$ref": "#/components/schemas/RateView"
+            },
+            "type": "array",
+            "title": "Rates"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rates"
+        ],
+        "title": "RatesResponse"
+      },
+      "RegisterRequest": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 8,
+            "title": "Password"
+          },
+          "invite_code": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 6,
+            "title": "Invite Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "password",
+          "invite_code"
+        ],
+        "title": "RegisterRequest"
+      },
+      "RoundtripResponse": {
+        "properties": {
+          "combinations": {
+            "items": {
+              "$ref": "#/components/schemas/RoundtripView"
+            },
+            "type": "array",
+            "title": "Combinations"
+          },
+          "providers_failed": {
+            "items": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Providers Failed"
+          },
+          "combinations_limited": {
+            "type": "boolean",
+            "title": "Combinations Limited"
+          },
+          "partial": {
+            "type": "boolean",
+            "title": "Partial",
+            "default": false
+          },
+          "window_dates_evaluated": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Window Dates Evaluated"
+          },
+          "budget_max_per_person_eur": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Budget Max Per Person Eur"
+          },
+          "earliest_departure_hour": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Earliest Departure Hour"
+          },
+          "home_city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Home City"
+          }
+        },
+        "type": "object",
+        "required": [
+          "combinations",
+          "providers_failed",
+          "combinations_limited"
+        ],
+        "title": "RoundtripResponse"
+      },
+      "RoundtripView": {
+        "properties": {
+          "outbound": {
+            "$ref": "#/components/schemas/FareView"
+          },
+          "inbound": {
+            "$ref": "#/components/schemas/FareView"
+          },
+          "cost": {
+            "$ref": "#/components/schemas/CostBreakdownView"
+          }
+        },
+        "type": "object",
+        "required": [
+          "outbound",
+          "inbound",
+          "cost"
+        ],
+        "title": "RoundtripView"
+      },
+      "SaveTripRequest": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 120,
+            "title": "Title",
+            "default": ""
+          },
+          "trip": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Trip"
+          },
+          "total_per_person_eur": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Total Per Person Eur"
+          },
+          "seen_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Seen At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "trip",
+          "total_per_person_eur",
+          "seen_at"
+        ],
+        "title": "SaveTripRequest"
+      },
+      "SavedTripList": {
+        "properties": {
+          "trips": {
+            "items": {
+              "$ref": "#/components/schemas/SavedTripView"
+            },
+            "type": "array",
+            "title": "Trips"
+          }
+        },
+        "type": "object",
+        "required": [
+          "trips"
+        ],
+        "title": "SavedTripList"
+      },
+      "SavedTripView": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "trip": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Trip"
+          },
+          "total_per_person_eur": {
+            "type": "number",
+            "title": "Total Per Person Eur"
+          },
+          "seen_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Seen At"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "current_price_eur": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Price Eur"
+          },
+          "current_price_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Price At"
+          },
+          "variation_percent": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Variation Percent"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "trip",
+          "total_per_person_eur",
+          "seen_at",
+          "created_at"
+        ],
+        "title": "SavedTripView"
+      },
+      "StationLinkCreate": {
+        "properties": {
+          "station_name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 2,
+            "title": "Station Name"
+          },
+          "country": {
+            "type": "string",
+            "pattern": "^[A-Za-z]{2}$",
+            "title": "Country"
+          },
+          "provider": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 2,
+            "title": "Provider"
+          },
+          "provider_station_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Provider Station Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "station_name",
+          "country",
+          "provider",
+          "provider_station_id"
+        ],
+        "title": "StationLinkCreate"
+      },
+      "StationLinkListResponse": {
+        "properties": {
+          "links": {
+            "items": {
+              "$ref": "#/components/schemas/StationLinkView"
+            },
+            "type": "array",
+            "title": "Links"
+          }
+        },
+        "type": "object",
+        "required": [
+          "links"
+        ],
+        "title": "StationLinkListResponse"
+      },
+      "StationLinkStatusUpdate": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "pattern": "^(confirmed|rejected)$",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "StationLinkStatusUpdate"
+      },
+      "StationLinkView": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "station_name": {
+            "type": "string",
+            "title": "Station Name"
+          },
+          "country": {
+            "type": "string",
+            "title": "Country"
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "provider_station_id": {
+            "type": "string",
+            "title": "Provider Station Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "method": {
+            "type": "string",
+            "title": "Method"
+          },
+          "created_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created By"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "station_name",
+          "country",
+          "provider",
+          "provider_station_id",
+          "status",
+          "score",
+          "method",
+          "created_by"
+        ],
+        "title": "StationLinkView"
+      },
+      "StationView": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "country_code": {
+            "type": "string",
+            "title": "Country Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "name",
+          "country_code"
+        ],
+        "title": "StationView"
+      },
+      "StationsResponse": {
+        "properties": {
+          "stations": {
+            "items": {
+              "$ref": "#/components/schemas/StationView"
+            },
+            "type": "array",
+            "title": "Stations"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "stations",
+          "total"
+        ],
+        "title": "StationsResponse"
+      },
+      "TokenResponse": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token"
+          },
+          "token_type": {
+            "type": "string",
+            "title": "Token Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "access_token",
+          "token_type"
+        ],
+        "title": "TokenResponse"
+      },
+      "TrailView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "distance_km": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Distance Km"
+          },
+          "elevation_m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Elevation M"
+          },
+          "difficulty": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Difficulty"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "gpx_url": {
+            "type": "string",
+            "title": "Gpx Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "provider",
+          "name",
+          "distance_km",
+          "elevation_m",
+          "difficulty",
+          "gpx_url"
+        ],
+        "title": "TrailView"
+      },
+      "TrailsSearchResponse": {
+        "properties": {
+          "trails": {
+            "items": {
+              "$ref": "#/components/schemas/TrailView"
+            },
+            "type": "array",
+            "title": "Trails"
+          },
+          "providers_used": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Providers Used"
+          },
+          "providers_failed": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Providers Failed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "trails",
+          "providers_used",
+          "providers_failed"
+        ],
+        "title": "TrailsSearchResponse"
+      },
+      "TrainDepartureView": {
+        "properties": {
+          "train_number": {
+            "type": "integer",
+            "title": "Train Number"
+          },
+          "train_label": {
+            "type": "string",
+            "title": "Train Label"
+          },
+          "destination": {
+            "type": "string",
+            "title": "Destination"
+          },
+          "scheduled_departure": {
+            "type": "string",
+            "title": "Scheduled Departure"
+          },
+          "delay_minutes": {
+            "type": "integer",
+            "title": "Delay Minutes"
+          },
+          "estimated": {
+            "type": "boolean",
+            "title": "Estimated"
+          }
+        },
+        "type": "object",
+        "required": [
+          "train_number",
+          "train_label",
+          "destination",
+          "scheduled_departure",
+          "delay_minutes",
+          "estimated"
+        ],
+        "title": "TrainDepartureView"
+      },
+      "TrainDeparturesResponse": {
+        "properties": {
+          "station_id": {
+            "type": "string",
+            "title": "Station Id"
+          },
+          "departures": {
+            "items": {
+              "$ref": "#/components/schemas/TrainDepartureView"
+            },
+            "type": "array",
+            "title": "Departures"
+          },
+          "providers_failed": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Providers Failed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "station_id",
+          "departures",
+          "providers_failed"
+        ],
+        "title": "TrainDeparturesResponse"
+      },
+      "TrainJourneyView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "origin": {
+            "type": "string",
+            "title": "Origin"
+          },
+          "destination": {
+            "type": "string",
+            "title": "Destination"
+          },
+          "departure_at": {
+            "type": "string",
+            "title": "Departure At"
+          },
+          "arrival_at": {
+            "type": "string",
+            "title": "Arrival At"
+          },
+          "duration": {
+            "type": "string",
+            "title": "Duration"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "price_per_person_eur": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Per Person Eur"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "trains": {
+            "items": {
+              "$ref": "#/components/schemas/TrainLegView"
+            },
+            "type": "array",
+            "title": "Trains"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "origin",
+          "destination",
+          "departure_at",
+          "arrival_at",
+          "duration",
+          "status",
+          "price_per_person_eur",
+          "currency",
+          "trains"
+        ],
+        "title": "TrainJourneyView"
+      },
+      "TrainLegView": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "acronym": {
+            "type": "string",
+            "title": "Acronym"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "acronym",
+          "category"
+        ],
+        "title": "TrainLegView"
+      },
+      "TrainSearchResponse": {
+        "properties": {
+          "from_station": {
+            "type": "string",
+            "title": "From Station"
+          },
+          "to_station": {
+            "type": "string",
+            "title": "To Station"
+          },
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "solutions": {
+            "items": {
+              "$ref": "#/components/schemas/TrainJourneyView"
+            },
+            "type": "array",
+            "title": "Solutions"
+          },
+          "providers_failed": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Providers Failed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "from_station",
+          "to_station",
+          "date",
+          "solutions",
+          "providers_failed"
+        ],
+        "title": "TrainSearchResponse"
+      },
+      "TrainStationListResponse": {
+        "properties": {
+          "stations": {
+            "items": {
+              "$ref": "#/components/schemas/TrainStationView"
+            },
+            "type": "array",
+            "title": "Stations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "stations"
+        ],
+        "title": "TrainStationListResponse"
+      },
+      "TrainStationView": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "country": {
+            "type": "string",
+            "title": "Country"
+          },
+          "multistation": {
+            "type": "boolean",
+            "title": "Multistation"
+          },
+          "centroid_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Centroid Id"
+          },
+          "provider_ids": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Provider Ids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "country",
+          "multistation",
+          "centroid_id",
+          "provider_ids"
+        ],
+        "title": "TrainStationView"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "WeatherForecastResponse": {
+        "properties": {
+          "latitude": {
+            "type": "number",
+            "title": "Latitude"
+          },
+          "longitude": {
+            "type": "number",
+            "title": "Longitude"
+          },
+          "timezone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timezone"
+          },
+          "elevation": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Elevation"
+          },
+          "daily": {
+            "items": {
+              "$ref": "#/components/schemas/DailyForecastView"
+            },
+            "type": "array",
+            "title": "Daily"
+          },
+          "generationtime_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Generationtime Ms"
+          },
+          "sources": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Sources"
+          }
+        },
+        "type": "object",
+        "required": [
+          "latitude",
+          "longitude",
+          "timezone",
+          "elevation",
+          "daily",
+          "generationtime_ms",
+          "sources"
+        ],
+        "title": "WeatherForecastResponse"
+      },
+      "viaggigoated__api__destinations__DestinationsResponse": {
+        "properties": {
+          "destinations": {
+            "items": {
+              "$ref": "#/components/schemas/DestinationView"
+            },
+            "type": "array",
+            "title": "Destinations"
+          },
+          "stale": {
+            "type": "boolean",
+            "title": "Stale"
+          },
+          "providers_failed": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Providers Failed"
+          },
+          "pages_read": {
+            "type": "integer",
+            "title": "Pages Read"
+          }
+        },
+        "type": "object",
+        "required": [
+          "destinations",
+          "stale",
+          "providers_failed",
+          "pages_read"
+        ],
+        "title": "DestinationsResponse"
+      },
+      "viaggigoated__api__itabus__DestinationsResponse": {
+        "properties": {
+          "station_code": {
+            "type": "string",
+            "title": "Station Code"
+          },
+          "station_name": {
+            "type": "string",
+            "title": "Station Name"
+          },
+          "destinations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Destinations"
+          },
+          "destination_count": {
+            "type": "integer",
+            "title": "Destination Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "station_code",
+          "station_name",
+          "destinations",
+          "destination_count"
+        ],
+        "title": "DestinationsResponse"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}
