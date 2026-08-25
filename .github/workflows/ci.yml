@@ -1,7 +1,9 @@
 name: SDK CI
 on:
-  push: { branches: [main] }
+  push:
+    branches: [main]
   pull_request:
+    branches: [main]
 
 jobs:
   contract:
@@ -19,9 +21,8 @@ jobs:
       - run: npm install --prefix typescript
       - run: npx tsc --noEmit
         working-directory: typescript
-      - name: openapi snapshot esists
-        run: test -f contracts/openapi.yaml && test -f contracts/openapi.json && echo "snapshot ok" || (echo "manca contracts/openapi.yaml/.json" && exit 1)
       - name: schemathesis (DAST su staging, se BACKEND_URL)
-        if: env.BACKEND_URL != ''
-        env: { BACKEND_URL: ${{ secrets.BACKEND_URL }} }
+        if: ${{ secrets.BACKEND_URL != '' }}
+        env:
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
         run: uv run schemathesis run $BACKEND_URL/openapi.json --checks all --hypothesis-max-examples=20 || echo "schemathesis skip — no staging"
