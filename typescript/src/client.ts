@@ -1,13 +1,24 @@
 /* @viaggigoated/sdk — client TS tipato su openapi.yaml, generale + link fonte ovunque */
-import { z } from "zod"
 
 export class ApiError extends Error {
-  constructor(public status: number, public body: unknown, public code = "UNKNOWN", public retryable = false) {
-    const msg = typeof body === "object" && body !== null && "user_message" in body ? String((body as Record<string, unknown>).user_message) : String(body)
-    super(`HTTP ${status}: ${msg}`)
+  status: number;
+  body: unknown;
+  code: string;
+  retryable: boolean;
+  userMessage: string;
+  constructor(status: number, body: unknown, code = "UNKNOWN", retryable = false) {
+    const rec = typeof body === "object" && body !== null ? (body as Record<string, unknown>) : null;
+    const um = rec && typeof rec.user_message === "string" ? rec.user_message : typeof rec?.userMessage === "string" ? String(rec.userMessage) : String(body ?? "");
+    const c = rec && typeof rec.code === "string" ? rec.code : code;
+    const ret = rec && typeof rec.retryable === "boolean" ? rec.retryable : retryable;
+    super(`HTTP ${status}: ${um || String(body)}`);
+    this.status = status;
+    this.body = body;
+    this.code = c;
+    this.retryable = ret;
+    this.userMessage = um || this.message;
   }
 }
-
 export function createClient(opts: { baseUrl: string; getToken?: () => string | null; timeoutMs?: number }) {
   const baseUrl = opts.baseUrl.replace(/\/$/, "")
   const timeoutMs = opts.timeoutMs ?? 15000
