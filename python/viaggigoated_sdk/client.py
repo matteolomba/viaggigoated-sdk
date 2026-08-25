@@ -11,11 +11,10 @@ class ApiError(RuntimeError):
     def __init__(self, status: int, data: Any) -> None:
         self.status = status
         self.data = data
-        msg = data.get("user_message") if isinstance(data, dict) else str(data)
+        msg = data.get("user_message") if isinstance(data, dict) else str(data)  # type: ignore
         super().__init__(f"HTTP {status}: {msg or data}")
-        self.code: str = data.get("code", "UNKNOWN") if isinstance(data, dict) else "UNKNOWN"
-        self.retryable: bool = bool(data.get("retryable")) if isinstance(data, dict) else False
-
+        self.code: str = data.get("code", "UNKNOWN") if isinstance(data, dict) else "UNKNOWN"  # type: ignore
+        self.retryable: bool = bool(data.get("retryable")) if isinstance(data, dict) else False  # type: ignore
 
 class ViaggigoatedClient:
     def __init__(self, base_url: str, token: str | None = None, timeout: float = 45.0) -> None:
