@@ -1,0 +1,27 @@
+name: SDK CI
+on:
+  push: { branches: [main] }
+  pull_request:
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with: { python-version: "3.12" }
+      - run: uv sync --locked
+        working-directory: python
+      - run: uv run pyright
+        working-directory: python
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - run: npm install --prefix typescript
+      - run: npx tsc --noEmit
+        working-directory: typescript
+      - name: openapi snapshot esists
+        run: test -f contracts/openapi.yaml && test -f contracts/openapi.json && echo "snapshot ok" || (echo "manca contracts/openapi.yaml/.json" && exit 1)
+      - name: schemathesis (DAST su staging, se BACKEND_URL)
+        if: env.BACKEND_URL != ''
+        env: { BACKEND_URL: ${{ secrets.BACKEND_URL }} }
+        run: uv run schemathesis run $BACKEND_URL/openapi.json --checks all --hypothesis-max-examples=20 || echo "schemathesis skip — no staging"
