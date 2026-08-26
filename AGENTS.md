@@ -141,4 +141,3 @@ Tabella unica (sincronizzata in tutti i repo via `AGENTS.md`). Legenda: ✅ ok �
 | LetsFG `letsfg auth` gratis | ✅ `npx letsfg auth` carta zero-amount → Bearer 90gg | ✅ idem | · | · | Unica via PFS `POST /api/search`+`GET /api/results`, no `register`/`setup-payment` |
 
 Risposta a “tutto possibile senza viaggigoated?”: **giro N-gambe sì**, ma via LetsFG è **lento e seriale** (matrix = leggi×date chiamate), con **stime locali** per tratte/notti e **2 fonti** per things. Con backend: **parallelo, cache, 6 fonti, OSRM, MIMIT, trails/GPX, meteo, IRIS, itinerary pesato, health**. Frontend e `viaggigoated/cli` sono thin sul backend via **`viaggigoated-sdk`** (contratti centrali, semver 1.x — vedi `docs/ARCHITETTURA.md` §Contratti centrali): no optimizer N-gambe, no cache LetsFG.
-
