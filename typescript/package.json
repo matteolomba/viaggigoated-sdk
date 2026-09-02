@@ -13,6 +13,6 @@
   },
   "devDependencies": {
     "typescript": "^5.5.0",
-    "orval": "^7.0.0"
+    "orval": "^8.27.0"
   }
 }
